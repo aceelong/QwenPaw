@@ -53,4 +53,5 @@ __all__ = [
     "generate_sql",
     "generate_chart",
     "analyze_data",
+    "load_metadata",
 ]

@@ -1001,6 +1001,36 @@ def _default_builtin_tools() -> Dict[str, BuiltinToolConfig]:
             description="Get llm token usage",
             icon="📊",
         ),
+        "execute_sql": BuiltinToolConfig(
+            name="execute_sql",
+            enabled=True,
+            description="Execute SQL queries on database",
+            icon="🗄️",
+        ),
+        "generate_sql": BuiltinToolConfig(
+            name="generate_sql",
+            enabled=True,
+            description="Generate SQL queries from natural language",
+            icon="📝",
+        ),
+        "generate_chart": BuiltinToolConfig(
+            name="generate_chart",
+            enabled=True,
+            description="Generate charts from data",
+            icon="📈",
+        ),
+        "analyze_data": BuiltinToolConfig(
+            name="analyze_data",
+            enabled=True,
+            description="Perform statistical analysis on data",
+            icon="🔬",
+        ),
+        "load_metadata": BuiltinToolConfig(
+            name="load_metadata",
+            enabled=True,
+            description="Load database table metadata for SQL generation",
+            icon="📋",
+        ),
     }
 
 

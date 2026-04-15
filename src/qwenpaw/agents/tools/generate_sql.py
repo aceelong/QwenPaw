@@ -7,19 +7,94 @@ and user questions.
 
 import logging
 import re
+from pathlib import Path
 from typing import Literal, Optional
 
 from agentscope.message import TextBlock
 from agentscope.tool import ToolResponse
 
+from ...constant import WORKING_DIR
 from .database_metadata import load_metadata, to_prompt_context
 
 logger = logging.getLogger(__name__)
 
-# SQL generation prompt template
-SQL_GENERATION_PROMPT = """你是一个SQL专家。根据以下数据库表结构，将用户问题转换为SQL查询。
+# Get the prompt template directory
+_PROMPT_DIR = Path(__file__).parent.parent 
 
-## 数据库表结构
+
+def _get_workspace_md_dir() -> Path:
+    """Get the workspace md files directory.
+
+    Priority:
+    1. WORKING_DIR ./md_files/zh
+    2. Default package md_files/zh
+
+    Returns:
+        Path to the md files directory
+    """
+    # Check workspace directory first
+    workspace_md_dir = WORKING_DIR 
+    if workspace_md_dir.exists() and workspace_md_dir.is_dir():
+        return workspace_md_dir
+
+    # Fallback to package default directory
+    return _PROMPT_DIR
+
+
+def _load_prompt_template(template_name: str) -> str:
+    """Load prompt template from markdown file.
+
+    Args:
+        template_name: Name of the template file (without .md extension)
+
+    Returns:
+        Template content as string
+    """
+    md_dir = _get_workspace_md_dir()
+    template_path = md_dir / f"{template_name}.md"
+
+    if template_path.exists():
+        try:
+            with open(template_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            logger.warning(
+                "Failed to load prompt template %s: %s, using fallback",
+                template_name,
+                e,
+            )
+
+    # Return inline fallback template
+    return _get_fallback_template()
+
+
+def _load_schema_context_template() -> str:
+    """Load schema context template from markdown file.
+
+    Returns:
+        Schema context template content
+    """
+    md_dir = _get_workspace_md_dir()
+    template_path = md_dir / "sql_schema_context.md"
+
+    if template_path.exists():
+        try:
+            with open(template_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            logger.warning(
+                "Failed to load schema context template: %s, using fallback",
+                e,
+            )
+
+    # Return inline fallback
+    return _get_fallback_schema_context()
+
+
+def _get_fallback_template() -> str:
+    """Get inline fallback template."""
+    return """你是一个SQL专家。根据以下数据库表结构，将用户问题转换为SQL查询。
+
 {schema_context}
 
 ## 用户问题
@@ -28,13 +103,20 @@ SQL_GENERATION_PROMPT = """你是一个SQL专家。根据以下数据库表结�
 ## 要求
 1. 只生成 SELECT 查询语句，不要生成 INSERT/UPDATE/DELETE
 2. 使用标准SQL语法
-3. 如果涉及日期筛选，使用适当的日期函数（如 DATE_SUB, DATE_FORMAT）
+3. 如果涉及日期筛选，使用适当的日期函数
 4. 如果需要排序，使用 ORDER BY
 5. 如果需要限制结果数，使用 LIMIT
 6. 只返回SQL语句，不要包含任何解释或说明
 
 ## SQL查询
 """
+
+
+def _get_fallback_schema_context() -> str:
+    """Get inline fallback schema context."""
+    return """## 数据库表结构
+
+{schema_context}"""
 
 # Fallback mock data for when database is not configured
 FALLBACK_MOCK_METADATA = """Database: sales_db
@@ -220,9 +302,15 @@ def generate_sql(
             # Use fallback mock metadata for demo/testing
             schema_context = FALLBACK_MOCK_METADATA
 
-        # Build prompt
-        prompt = SQL_GENERATION_PROMPT.format(
-            schema_context=schema_context,
+        # Build prompt - load template from md file
+        # Step 1: Load schema context template and fill in actual metadata
+        schema_template = _load_schema_context_template()
+        schema_filled = schema_template.format(schema_context=schema_context)
+
+        # Step 2: Load main prompt template and combine with schema context
+        prompt_template = _load_prompt_template("sql_generation")
+        prompt = prompt_template.format(
+            schema_context=schema_filled,
             question=question.strip(),
         )
 

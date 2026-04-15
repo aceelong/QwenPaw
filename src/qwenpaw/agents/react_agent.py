@@ -47,6 +47,7 @@ from .tools import (
     get_token_usage,
     glob_search,
     grep_search,
+    load_metadata,
     read_file,
     send_file_to_user,
     set_user_timezone,
@@ -246,6 +247,7 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
             "generate_sql": generate_sql,
             "generate_chart": generate_chart,
             "analyze_data": analyze_data,
+            "load_metadata": load_metadata,
         }
 
         multimodal = get_active_model_supports_multimodal()
