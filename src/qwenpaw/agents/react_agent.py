@@ -35,10 +35,14 @@ from .skills_manager import (
 )
 from .tool_guard_mixin import ToolGuardMixin
 from .tools import (
+    analyze_data,
     browser_use,
     desktop_screenshot,
     edit_file,
     execute_shell_command,
+    execute_sql,
+    generate_sql,
+    generate_chart,
     get_current_time,
     get_token_usage,
     glob_search,
@@ -238,6 +242,10 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
             "get_current_time": get_current_time,
             "set_user_timezone": set_user_timezone,
             "get_token_usage": get_token_usage,
+            "execute_sql": execute_sql,
+            "generate_sql": generate_sql,
+            "generate_chart": generate_chart,
+            "analyze_data": analyze_data,
         }
 
         multimodal = get_active_model_supports_multimodal()

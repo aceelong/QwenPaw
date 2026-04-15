@@ -23,6 +23,11 @@ from .view_media import view_image, view_video
 from .memory_search import create_memory_search_tool
 from .get_current_time import get_current_time, set_user_timezone
 from .get_token_usage import get_token_usage
+from .sql_execute import execute_sql
+from .generate_sql import generate_sql
+from .generate_chart import generate_chart
+from .analyze_data import analyze_data
+from .database_metadata import load_metadata, DatabaseMetadata
 
 __all__ = [
     "execute_python_code",
@@ -44,4 +49,8 @@ __all__ = [
     "get_current_time",
     "set_user_timezone",
     "get_token_usage",
+    "execute_sql",
+    "generate_sql",
+    "generate_chart",
+    "analyze_data",
 ]
