@@ -247,7 +247,7 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
             "generate_sql": generate_sql,
             "generate_chart": generate_chart,
             "analyze_data": analyze_data,
-            "load_metadata": load_metadata,
+            # "load_metadata": load_metadata,
         }
 
         multimodal = get_active_model_supports_multimodal()
